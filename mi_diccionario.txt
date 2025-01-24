@@ -1,0 +1,4 @@
+pelota|ball
+hola|hello
+Agregar|add
+a|a
