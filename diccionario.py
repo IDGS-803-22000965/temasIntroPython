@@ -1,65 +1,57 @@
 class Diccionario:
-    def __init__(self, nombre_archivo):
-        self.nombre_archivo = nombre_archivo
+    
+    nombre_archivo = ""
+    palabras = {}
+    
+    def __init__(self, archivo):
+        self.archivo = archivo
         self.palabras = {}
+        self.cargar_palabras()
 
-    def agregar_palabra(self, palabra_esp, palabra_ing):
-        self.palabras[palabra_esp] = palabra_ing
+    def agregar_palabra(self, esp, ing):
+        self.palabras[esp] = ing
         self.guardar_cambios()
 
     def buscar_palabra(self):
-        while True:
-            opcion_idioma = input("Buscar en:\n1. Español\n2. Inglés\nOpción: ")
-            if opcion_idioma in ["1", "2"]:
-                break
-            else:
-                print("Opción inválida. Por favor, elige 1 o 2.")
+        while (opcion := input("Buscar en:\n1. Español\n2. Inglés\nOpción: ")) not in ["1", "2"]:
+            print("Opción inválida. Elige 1 o 2.")
 
-        palabra_buscar = input("Ingrese la palabra a buscar: ")
+        palabra = input("Ingrese la palabra a buscar: ")
 
-        if opcion_idioma == "1":
-            if palabra_buscar in self.palabras:
-                print(f"La traducción de {palabra_buscar} es: {self.palabras[palabra_buscar]}")
-            else:
-                print("Palabra no encontrada en español.")
+        if opcion == "1":
+            print(f"La traducción de {palabra} es: {self.palabras.get(palabra, 'No encontrada')}")
         else:
-            for esp, ing in self.palabras.items():
-                if ing == palabra_buscar:
-                    print(f"La traducción de {palabra_buscar} es: {esp}")
-                    return
-            print("Palabra no encontrada en inglés.")
+            traduccion = next((esp for esp, ing in self.palabras.items() if ing == palabra), None)
+            print(f"La traducción de {palabra} es: {traduccion if traduccion else 'No encontrada'}")
 
     def guardar_cambios(self):
-        with open(self.nombre_archivo, "w") as archivo:
-            for esp, ing in self.palabras.items():
-                archivo.write(f"{esp}|{ing}\n")
+        with open(self.archivo, "w") as f:
+            f.writelines(f"{esp}|{ing}\n" for esp, ing in self.palabras.items())
 
     def cargar_palabras(self):
         try:
-            with open(self.nombre_archivo, "r") as archivo:
-                for linea in archivo:
-                    esp, ing = linea.strip().split("|")
-                    self.palabras[esp] = ing
+            with open(self.archivo, "r") as f:
+                self.palabras = dict(linea.strip().split("|") for linea in f)
         except FileNotFoundError:
-            print("Archivo no encontrado. Creando uno nuevo...")
+            print("Archivo no encontrado. Creando uno nuevo.")
+    
+    def menu(self):
+        while True:
+            opcion = input("\n1. Agregar palabra\n2. Buscar palabra\n3. Salir\nSeleccione una opción: ")
+
+            if opcion == "1":
+                dic.agregar_palabra(input("Ingrese la palabra en español: "), input("Ingrese la palabra en inglés: "))
+            elif opcion == "2":
+                 dic.buscar_palabra()
+            elif opcion == "3":
+                break
+            else:
+                 print("Opción inválida.")
+
+
+
 
 if __name__ == "__main__":
-    diccionario = Diccionario("mi_diccionario.txt")
-    diccionario.cargar_palabras()
-
-    while True:
-        print("\n1. Agregar palabra")
-        print("2. Buscar palabra")
-        print("3. Salir")
-        opcion = input("Seleccione una opción: ")
-
-        if opcion == "1":
-            esp = input("Ingrese la palabra en español: ")
-            ing = input("Ingrese la palabra en inglés: ")
-            diccionario.agregar_palabra(esp, ing)
-        elif opcion == "2":
-            diccionario.buscar_palabra()
-        elif opcion == "3":
-            break
-        else:
-            print("Opción inválida.")
+    dic = Diccionario("diccionario.txt")
+    dic.menu()
+    

@@ -1,0 +1,2 @@
+perro|dog
+rata|rad
